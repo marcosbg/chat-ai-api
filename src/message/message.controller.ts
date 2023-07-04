@@ -16,7 +16,7 @@ export class MessageController {
 
   @Post('v1/message')
   @HttpCode(200)
-  async send(@Req() request: Request): Promise<string> {
+  async send(@Req() request: Request): Promise<Object> {
     const configuration = new Configuration({
       apiKey: this.configService.get<string>('OPENAI_API_KEY'),
     });
@@ -43,7 +43,7 @@ export class MessageController {
         temperature: 0.5,
         max_tokens: 150,
       });
-      return response.data.choices[0].message.content;
+      return { result: response.data.choices[0].message.content };
     } catch (error) {
       if (error.response) {
         throw new InternalServerErrorException("OpenAI error", {
