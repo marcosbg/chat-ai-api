@@ -46,7 +46,7 @@ export class MessageController {
       return { result: response.data.choices[0].message.content };
     } catch (error) {
       if (error.response) {
-        throw new InternalServerErrorException("OpenAI error", {
+        throw new InternalServerErrorException('OpenAI error', {
           description: error.response.data,
           cause: error.response.data.error,
         });
@@ -54,11 +54,16 @@ export class MessageController {
     }
   }
 
-  appendSystemMessage(messages: ChatCompletionRequestMessage[]): ChatCompletionRequestMessage[] {
-    return [{ role: "system", content: this.generateSystemMessage() }, ...messages];
+  appendSystemMessage(
+    messages: ChatCompletionRequestMessage[],
+  ): ChatCompletionRequestMessage[] {
+    return [
+      { role: 'system', content: this.generateSystemMessage() },
+      ...messages,
+    ];
   }
-  
+
   generateSystemMessage(): string {
-    return "You work in a shopping center and the customer wants to buy a purse in your store. Help the customer to buy the product. Write short sentences with basic english.";
+    return 'You work in a shopping center and the customer wants to buy a purse in your store. Help the customer to buy the product. Write short sentences with basic english.';
   }
 }
