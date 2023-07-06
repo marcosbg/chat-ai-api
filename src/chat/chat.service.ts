@@ -11,14 +11,14 @@ import {
   Configuration,
   OpenAIApi,
 } from 'openai';
-import { Message } from './interfaces/message.interface';
+import { ChatMessage } from './interfaces/chatMessage.interface';
 
 @Injectable()
-export class MessageService {
-  private readonly logger = new Logger(MessageService.name);
+export class ChatService {
+  private readonly logger = new Logger(ChatService.name);
   constructor(private readonly configService: ConfigService) {}
 
-  async complete(messages: Message[]): Promise<Message> {
+  async sendMessage(messages: ChatMessage[]): Promise<ChatMessage> {
     const configuration = new Configuration({
       apiKey: this.configService.get<string>('OPENAI_API_KEY'),
     });
@@ -51,7 +51,7 @@ export class MessageService {
       this.logger.log('Sending message to OpenAI');
       const response = await openai.createChatCompletion({
         model: this.configService.get<string>('OPENAI_MODEL'),
-        messages: this.appendSystemMessage(chatMessages),
+        messages: this.generateArrayForCompletition(chatMessages),
         temperature: 0.5,
         max_tokens: 150,
       });
@@ -70,7 +70,7 @@ export class MessageService {
       }
     }
   }
-  private appendSystemMessage(
+  private generateArrayForCompletition(
     messages: ChatCompletionRequestMessage[],
   ): ChatCompletionRequestMessage[] {
     return [

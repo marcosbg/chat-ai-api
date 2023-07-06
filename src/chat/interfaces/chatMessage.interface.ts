@@ -1,4 +1,4 @@
-export interface Message {
+export interface ChatMessage {
   role: string;
   content: string;
 }
