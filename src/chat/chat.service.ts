@@ -18,7 +18,10 @@ export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   constructor(private readonly configService: ConfigService) {}
 
-  async sendMessage(messages: ChatMessage[]): Promise<ChatMessage> {
+  async sendMessage(
+    dialogueId: number,
+    messages: ChatMessage[],
+  ): Promise<ChatMessage> {
     const configuration = new Configuration({
       apiKey: this.configService.get<string>('OPENAI_API_KEY'),
     });
@@ -51,7 +54,7 @@ export class ChatService {
       this.logger.log('Sending message to OpenAI');
       const response = await openai.createChatCompletion({
         model: this.configService.get<string>('OPENAI_MODEL'),
-        messages: this.generateArrayForCompletition(chatMessages),
+        messages: this.generateArrayForCompletition(dialogueId, chatMessages),
         temperature: 0.5,
         max_tokens: 150,
       });
@@ -71,15 +74,50 @@ export class ChatService {
     }
   }
   private generateArrayForCompletition(
+    dialogueId: number,
     messages: ChatCompletionRequestMessage[],
   ): ChatCompletionRequestMessage[] {
     return [
-      { role: 'system', content: this.generateSystemMessage() },
+      { role: 'system', content: this.getSystemMessage(dialogueId) },
       ...messages,
     ];
   }
 
-  private generateSystemMessage(): string {
-    return 'You work in a shopping center and the customer wants to buy a purse in your store. Help the customer to buy the product. Write short sentences with basic english.';
+  private getSystemMessage(dialogueId: number): string {
+    const systemMessages = new Map<number, string>();
+
+    systemMessages.set(
+      1,
+      `You work in a shopping center and the customer wants to buy clothes in your store.If you are a seller, you should:
+      1. Greet the customer.
+      2. Ask the customer what he wants to buy.
+      3. Provide options to the customer.
+      Write short sentences with basic english.`,
+    );
+
+    systemMessages.set(
+      2,
+      `This is a dialogue between 2 friends and you are one of this friends.
+      They meet each other in a cafe and talk about their lives.
+      If you are a friend, you should:
+      1. Greet the other friend.
+      2. Ask the other friend what he/she has been doing.
+      3. Tell the other friend what you have been doing.
+      Write short sentences with basic english.`,
+    );
+
+    systemMessages.set(
+      3,
+      `A costumer arrives in a restaurant and wants to order food. The AI is the waiter.
+      If you are a waiter, you should:
+      1. Greet the customer.
+      2. Ask the customer what he wants to order.
+      3. Provide options to the customer.
+      4. Ask the customer if he wants something for drink.
+      5. Let the customer know that the food will be ready soon.
+      Write short sentences with basic english.`,
+    );
+
+    return systemMessages.get(dialogueId);
   }
 }

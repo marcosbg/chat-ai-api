@@ -10,8 +10,12 @@ export class ChatController {
   @Post('message')
   @HttpCode(200)
   async sendMessage(@Req() request: Request): Promise<ChatMessageResponse> {
+    const dialogueId = request.body.dialogueId || 1;
     const messages = request.body.messages || [];
-    const response = await this.messageService.sendMessage(messages);
+    const response = await this.messageService.sendMessage(
+      dialogueId,
+      messages,
+    );
     return { result: response.content };
   }
 }
