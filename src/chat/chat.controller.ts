@@ -34,7 +34,7 @@ export class ChatController {
   @HttpCode(200)
   async sendAudio(@UploadedFile() audio: Express.Multer.File): Promise<string> {
     this.logger.log('Receving audio: ' + audio.originalname);
-    //const response = await this.messageService.sendAudio(audio);
-    return 'Recevied audio: ' + audio.originalname;
+    const response = await this.messageService.transcribeAudio(audio);
+    return response;
   }
 }
