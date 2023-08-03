@@ -1,20 +1,11 @@
-import {
-  Controller,
-  HttpCode,
-  Logger,
-  Post,
-  Req,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { Express, Request } from 'express';
+import { Controller, HttpCode, Logger, Post, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { ChatService } from './chat.service';
 import { ChatMessageResponse } from './interfaces/chatMessageResponse.interface';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('v1/chat')
 export class ChatController {
-  private readonly logger = new Logger(ChatService.name);
+  private readonly logger = new Logger(ChatController.name);
   constructor(private readonly messageService: ChatService) {}
 
   @Post('message')
@@ -27,14 +18,5 @@ export class ChatController {
       messages,
     );
     return { result: response.content };
-  }
-
-  @Post('audio')
-  @UseInterceptors(FileInterceptor('audio'))
-  @HttpCode(200)
-  async sendAudio(@UploadedFile() audio: Express.Multer.File): Promise<string> {
-    this.logger.log('Receving audio: ' + audio.originalname);
-    const response = await this.messageService.transcribeAudio(audio);
-    return response;
   }
 }
