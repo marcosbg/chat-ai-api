@@ -18,6 +18,15 @@ export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   constructor(private readonly configService: ConfigService) {}
 
+  async getInitialMessage(dialogueId: string): Promise<ChatMessage> {
+    const initialMessage = this.findInitialMessage(dialogueId);
+    this.logger.log('Initial message found: ' + initialMessage);
+    return {
+      role: 'assistant',
+      content: initialMessage,
+    };
+  }
+
   async sendMessage(
     dialogueId: number,
     messages: ChatMessage[],
@@ -119,6 +128,29 @@ export class ChatService {
       Write short sentences with basic english.`,
     );
 
+    systemMessages.set(
+      4,
+      `The AI is doing a jon interview with a candidate. The candidate you provide answers 
+      whreas the interviewer will try to understand the candidate profile and experiences.
+      The interviewer should make open questions, try to explore on top of the answers and clarify doubts.
+      Write short sentences with basic english.`,
+    );
+
     return systemMessages.get(dialogueId);
+  }
+
+  private findInitialMessage(dialogueId: string): string {
+    switch (dialogueId) {
+      case '1':
+        return 'Hello there! How can I help you?';
+      case '2':
+        return "Hey friend! It's been so long! How are you?";
+      case '3':
+        return 'Hello! Welcome to our restaurant! Would you like to order?';
+      case '4':
+        return 'Hello! My name is John and I will be your interviewer today. How are you?';
+      default:
+        return 'Hello there! How can I help you?';
+    }
   }
 }

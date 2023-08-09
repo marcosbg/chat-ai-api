@@ -1,4 +1,12 @@
-import { Controller, HttpCode, Logger, Post, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  Logger,
+  Param,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { ChatService } from './chat.service';
 import { ChatMessageResponse } from './interfaces/chatMessageResponse.interface';
@@ -17,6 +25,15 @@ export class ChatController {
       dialogueId,
       messages,
     );
+    return { result: response.content };
+  }
+
+  @Get(':id/messages')
+  @HttpCode(200)
+  async getInitialMessage(
+    @Param('id') dialogueId: string,
+  ): Promise<ChatMessageResponse> {
+    const response = await this.messageService.getInitialMessage(dialogueId);
     return { result: response.content };
   }
 }
