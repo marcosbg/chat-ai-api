@@ -8,15 +8,17 @@ import { ConfigService } from '@nestjs/config';
 import {
   ChatCompletionRequestMessage,
   ChatCompletionRequestMessageRoleEnum,
-  Configuration,
-  OpenAIApi,
 } from 'openai';
 import { ChatMessage } from './interfaces/chatMessage.interface';
+import { AiProviderService } from 'src/ai-provider/ai-provider.service';
 
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly aiProviderService: AiProviderService,
+  ) {}
 
   async getInitialMessage(dialogueId: string): Promise<ChatMessage> {
     const initialMessage = this.findInitialMessage(dialogueId);
@@ -31,17 +33,8 @@ export class ChatService {
     dialogueId: number,
     messages: ChatMessage[],
   ): Promise<ChatMessage> {
-    const configuration = new Configuration({
-      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
-    });
-    const openai = new OpenAIApi(configuration);
-    if (!configuration.apiKey) {
-      this.logger.error('OpenAI API key not configured');
-      throw new InternalServerErrorException('OpenAI API key not configured', {
-        description:
-          'OpenAI API key not configured, please follow instructions in README.md',
-      });
-    }
+    const openai = this.aiProviderService.getAiConnection();
+
     if (messages.length === 0) {
       this.logger.error('No messages provided');
       throw new BadRequestException('Please enter a valid message', {
@@ -73,13 +66,10 @@ export class ChatService {
         content: response.data.choices[0].message.content,
       };
     } catch (error) {
-      if (error.response) {
-        this.logger.error('OpenAI error', error.response.data);
-        throw new InternalServerErrorException('OpenAI error', {
-          description: error.response.data,
-          cause: error.response.data.error,
-        });
-      }
+      this.logger.error('OpenAI error', error.response?.data);
+      throw new InternalServerErrorException(
+        'Failed to send message. Please try again later.',
+      );
     }
   }
 

@@ -29,7 +29,8 @@
     "aws-serverless-express": "^3.4.0",
     "openai": "^3.3.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "text-diff": "^1.0.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
